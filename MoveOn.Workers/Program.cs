@@ -33,10 +33,10 @@ public class Program
 
                 // Configure Database
                 var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                    ?? "Host=localhost;Database=MoveOn;Username=postgres;Password=password";
+                    ?? "Server=localhost;Database=MoveOn;Trusted_Connection=true;MultipleActiveResultSets=true";
                 
                 services.AddDbContext<MoveOnDbContext>(options =>
-                    options.UseNpgsql(connectionString));
+                    options.UseSqlServer(connectionString));
 
                 // Configure Hangfire
                 services.AddHangfire(config =>

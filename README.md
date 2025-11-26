@@ -46,7 +46,7 @@ The solution follows Clean Architecture with the following projects:
 ## Technology Stack
 
 - **.NET 8** with ASP.NET Core
-- **Entity Framework Core** with PostgreSQL
+- **Entity Framework Core** with SQL Server
 - **SignalR** for real-time communication
 - **Hangfire** for background jobs
 - **JWT** for authentication
@@ -54,7 +54,7 @@ The solution follows Clean Architecture with the following projects:
 
 ## Database Configuration
 
-The application uses PostgreSQL with Entity Framework Core. All database configurations are done using Fluent API in `EntityConfiguration.cs`.
+The application uses SQL Server with Entity Framework Core. All database configurations are done using Fluent API in `EntityConfiguration.cs`.
 
 ### Key Entities:
 - Users
@@ -64,6 +64,42 @@ The application uses PostgreSQL with Entity Framework Core. All database configu
 - Likes
 - Conversations
 - Messages
+
+## Database Setup
+
+### SQL Server Setup
+1. **Install SQL Server** (SQL Server Express, Developer, or Standard)
+2. **Create database** named "MoveOn"
+3. **Update connection string** in appsettings.json
+
+### Connection String Examples:
+
+**Windows Authentication:**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MoveOn;Trusted_Connection=true;MultipleActiveResultSets=true"
+  }
+}
+```
+
+**SQL Server Authentication:**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MoveOn;User Id=your_username;Password=your_password;MultipleActiveResultSets=true"
+  }
+}
+```
+
+**Azure SQL Database:**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=your_server.database.windows.net;Database=MoveOn;User Id=your_username;Password=your_password;MultipleActiveResultSets=true"
+  }
+}
+```
 
 ## API Endpoints
 
@@ -121,7 +157,7 @@ Update `appsettings.json`:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=MoveOn;Username=postgres;Password=password"
+    "DefaultConnection": "Server=localhost;Database=MoveOn;Trusted_Connection=true;MultipleActiveResultSets=true"
   }
 }
 ```
@@ -141,7 +177,7 @@ Update `appsettings.json`:
 ## Getting Started
 
 1. **Setup Database**:
-   - Install PostgreSQL
+   - Install SQL Server (Express, Developer, or Standard)
    - Create database named "MoveOn"
    - Update connection string in appsettings.json
 
@@ -180,6 +216,7 @@ Update `appsettings.json`:
 - Use persistent storage for Hangfire in production
 - Configure proper HTTPS and security headers
 - Set up database migrations for schema management
+- Consider using SQL Server Management Studio (SSMS) for database administration
 
 ## Development Notes
 

@@ -18,7 +18,7 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Id)
-            .HasDefaultValueSql("gen_random_uuid()");
+            .HasDefaultValueSql("newid()");
 
         builder.Property(u => u.Email)
             .IsRequired()
@@ -44,10 +44,10 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
             .HasConversion<int>();
 
         builder.Property(u => u.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         builder.Property(u => u.UpdatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         // Create unique index on email
         builder.HasIndex(u => u.Email)
@@ -101,7 +101,7 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
         builder.HasKey(br => br.Id);
 
         builder.Property(br => br.Id)
-            .HasDefaultValueSql("gen_random_uuid()");
+            .HasDefaultValueSql("newid()");
 
         builder.Property(br => br.UserId)
             .IsRequired();
@@ -136,7 +136,7 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .HasDefaultValueSql("gen_random_uuid()");
+            .HasDefaultValueSql("newid()");
 
         builder.Property(p => p.UserId)
             .IsRequired();
@@ -149,10 +149,10 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
             .HasMaxLength(500);
 
         builder.Property(p => p.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         builder.Property(p => p.UpdatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         // Create index for posts ordered by creation date
         builder.HasIndex(p => p.CreatedAt)
@@ -228,7 +228,7 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
             .IsRequired();
 
         builder.Property(l => l.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         // Create unique composite index to prevent duplicate likes
         builder.HasIndex(l => new { l.PostId, l.UserId })
@@ -293,7 +293,7 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
         builder.HasKey(m => m.Id);
 
         builder.Property(m => m.Id)
-            .HasDefaultValueSql("gen_random_uuid()");
+            .HasDefaultValueSql("newid()");
 
         builder.Property(m => m.ConversationId)
             .IsRequired();
@@ -312,7 +312,7 @@ public class EntityConfiguration : IEntityTypeConfiguration<User>,
             .HasDefaultValue(false);
 
         builder.Property(m => m.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         // Create index for conversation messages ordered by creation date
         builder.HasIndex(m => new { m.ConversationId, m.CreatedAt })

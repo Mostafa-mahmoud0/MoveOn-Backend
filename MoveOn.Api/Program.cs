@@ -62,10 +62,10 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     // Configure Database
     var connectionString = configuration.GetConnectionString("DefaultConnection") 
-        ?? "Host=localhost;Database=MoveOn;Username=postgres;Password=password";
+        ?? "Server=localhost;Database=MoveOn;Trusted_Connection=true;MultipleActiveResultSets=true";
     
     services.AddDbContext<MoveOnDbContext>(options =>
-        options.UseNpgsql(connectionString));
+        options.UseSqlServer(connectionString));
 
     // Configure JWT Authentication
     var jwtSecret = configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured");
