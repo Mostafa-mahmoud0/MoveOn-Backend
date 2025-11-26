@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MoveOn - Fitness Mobile Application Backend
 
 A comprehensive backend API for a fitness mobile application built with ASP.NET Core 8, following Clean Architecture principles.
@@ -187,3 +188,6 @@ Update `appsettings.json`:
 - Clean Architecture principles are strictly followed
 - Comprehensive error handling and logging
 - Swagger documentation included for API testing
+=======
+# MoveOn-Backend
+>>>>>>> ce844745d0814083a88f71136ba5a43777df307f

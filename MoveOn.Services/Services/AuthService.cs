@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BCrypt.Net;
+using MoveOn.Core.Enums;
 
 namespace MoveOn.Services.Services;
 
@@ -46,7 +47,7 @@ public class AuthService : IAuthService
             PasswordHash = passwordHash,
             FirstName = firstName,
             LastName = lastName,
-            Role = Core.Enums.Role.User,
+            Role = Role.User,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

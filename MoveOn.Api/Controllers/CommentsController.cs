@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoveOn.Api.DTOs;
 using MoveOn.Core.Interfaces;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
 namespace MoveOn.Api.Controllers;
@@ -19,13 +20,9 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CommentResponse>> CreateComment([FromBody] CommentRequest request)
+    public async Task<ActionResult<CommentResponse>> CreateComment([FromBody] CommentRequest request, [FromQuery] Guid postId)
     {
         var userId = GetCurrentUserId();
-        
-        // For simplicity, we'll assume postId is passed in the request
-        // In a real app, you might want to include postId in the route or request body
-        var postId = Guid.Parse(Request.Form["postId"].FirstOrDefault() ?? throw new ArgumentException("PostId is required"));
         
         var comment = await _commentService.CreateCommentAsync(postId, userId, request.Content);
 
