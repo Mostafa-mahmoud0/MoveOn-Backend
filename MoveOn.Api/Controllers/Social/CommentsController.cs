@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoveOn.Api.DTOs;
-using MoveOn.Core.Interfaces;
-using Microsoft.AspNetCore.Http;
+using MoveOn.Core.Models.Requests.Social;
+using MoveOn.Core.Models.Responses.Social;
+using MoveOn.Core.Interfaces.Services;
+using MoveOn.Core.Models.Common;
 using System.Security.Claims;
 
-namespace MoveOn.Api.Controllers;
+namespace MoveOn.Api.Controllers.Social;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,13 +21,13 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CommentResponse>> CreateComment([FromBody] CommentRequest request, [FromQuery] Guid postId)
+    public async Task<ActionResult<ApiResponse<CommentResponse>>> CreateComment([FromBody] CreateCommentRequest request, [FromQuery] Guid postId)
     {
         var userId = GetCurrentUserId();
         
         var comment = await _commentService.CreateCommentAsync(postId, userId, request.Content);
 
-        return Ok(new CommentResponse
+        var response = new CommentResponse
         {
             Id = comment.Id,
             PostId = comment.PostId,
@@ -40,18 +41,22 @@ public class CommentsController : ControllerBase
                 Email = comment.User.Email,
                 FirstName = comment.User.FirstName,
                 LastName = comment.User.LastName,
-                ProfileImageUrl = comment.User.ProfileImageUrl
+                ProfileImageUrl = comment.User.ProfileImageUrl,
+                Role = comment.User.Role.ToString(),
+                CreatedAt = comment.User.CreatedAt
             }
-        });
+        };
+
+        return Ok(ApiResponse<CommentResponse>.SuccessResult(response));
     }
 
     [HttpGet("post/{postId}")]
     [AllowAnonymous]
-    public async Task<ActionResult<IEnumerable<CommentResponse>>> GetPostComments(Guid postId)
+    public async Task<ActionResult<ApiResponse<IEnumerable<CommentResponse>>>> GetPostComments(Guid postId)
     {
         var comments = await _commentService.GetPostCommentsAsync(postId);
 
-        return Ok(comments.Select(c => new CommentResponse
+        var response = comments.Select(c => new CommentResponse
         {
             Id = c.Id,
             PostId = c.PostId,
@@ -65,9 +70,13 @@ public class CommentsController : ControllerBase
                 Email = c.User.Email,
                 FirstName = c.User.FirstName,
                 LastName = c.User.LastName,
-                ProfileImageUrl = c.User.ProfileImageUrl
+                ProfileImageUrl = c.User.ProfileImageUrl,
+                Role = c.User.Role.ToString(),
+                CreatedAt = c.User.CreatedAt
             }
-        }));
+        });
+
+        return Ok(ApiResponse<IEnumerable<CommentResponse>>.SuccessResult(response));
     }
 
     private Guid GetCurrentUserId()

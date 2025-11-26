@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoveOn.Api.DTOs;
-using MoveOn.Core.Interfaces;
+using MoveOn.Core.Models.Requests.Authentication;
+using MoveOn.Core.Models.Responses.Authentication;
+using MoveOn.Core.Interfaces.Services;
 using System.Security.Claims;
 
-namespace MoveOn.Api.Controllers;
+namespace MoveOn.Api.Controllers.Authentication;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -18,7 +19,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> Register([FromBody] RegisterRequest request)
     {
         try
         {
@@ -27,27 +28,30 @@ public class AuthController : ControllerBase
             
             if (user == null)
             {
-                return BadRequest("Registration failed.");
+                return BadRequest(ApiResponse<AuthResponse>.ErrorResult("Registration failed."));
             }
 
-            return Ok(new AuthResponse
+            var authResponse = new AuthResponse
             {
                 Token = token,
                 UserId = user.Id,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Role = user.Role.ToString()
-            });
+                Role = user.Role.ToString(),
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            return Ok(ApiResponse<AuthResponse>.SuccessResult(authResponse));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(ApiResponse<AuthResponse>.ErrorResult(ex.Message));
         }
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> Login([FromBody] LoginRequest request)
     {
         try
         {
@@ -56,45 +60,52 @@ public class AuthController : ControllerBase
             
             if (user == null)
             {
-                return BadRequest("Login failed.");
+                return BadRequest(ApiResponse<AuthResponse>.ErrorResult("Login failed."));
             }
 
-            return Ok(new AuthResponse
+            var authResponse = new AuthResponse
             {
                 Token = token,
                 UserId = user.Id,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Role = user.Role.ToString()
-            });
+                Role = user.Role.ToString(),
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            return Ok(ApiResponse<AuthResponse>.SuccessResult(authResponse));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(ApiResponse<AuthResponse>.ErrorResult(ex.Message));
         }
     }
 
     [HttpGet("me")]
     [Authorize]
-    public async Task<ActionResult<UserResponse>> GetCurrentUser()
+    public async Task<ActionResult<ApiResponse<UserResponse>>> GetCurrentUser()
     {
         var userId = GetCurrentUserId();
         var user = await _authService.GetUserByIdAsync(userId);
         
         if (user == null)
         {
-            return NotFound();
+            return NotFound(ApiResponse<UserResponse>.ErrorResult("User not found."));
         }
 
-        return Ok(new UserResponse
+        var userResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            ProfileImageUrl = user.ProfileImageUrl
-        });
+            ProfileImageUrl = user.ProfileImageUrl,
+            Role = user.Role.ToString(),
+            CreatedAt = user.CreatedAt
+        };
+
+        return Ok(ApiResponse<UserResponse>.SuccessResult(userResponse));
     }
 
     private Guid GetCurrentUserId()

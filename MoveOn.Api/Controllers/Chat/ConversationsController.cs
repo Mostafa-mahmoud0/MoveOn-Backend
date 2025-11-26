@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoveOn.Api.DTOs;
-using MoveOn.Core.Interfaces;
+using MoveOn.Core.Models.Requests.Chat;
+using MoveOn.Core.Models.Responses.Chat;
+using MoveOn.Core.Interfaces.Services;
+using MoveOn.Core.Models.Common;
 using System.Security.Claims;
 
-namespace MoveOn.Api.Controllers;
+namespace MoveOn.Api.Controllers.Chat;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -19,73 +21,75 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ConversationResponse>> CreateConversation([FromBody] Guid otherUserId)
+    public async Task<ActionResult<ApiResponse<ConversationResponse>>> CreateConversation([FromBody] CreateConversationRequest request)
     {
         var userId = GetCurrentUserId();
-        var conversation = await _conversationService.CreateConversationAsync(userId, otherUserId);
+        var conversation = await _conversationService.CreateConversationAsync(userId, request.OtherUserId);
 
-        return Ok(MapToConversationResponse(conversation));
+        return Ok(ApiResponse<ConversationResponse>.SuccessResult(MapToConversationResponse(conversation)));
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ConversationResponse>>> GetConversations()
+    public async Task<ActionResult<ApiResponse<IEnumerable<ConversationResponse>>>> GetConversations()
     {
         var userId = GetCurrentUserId();
         var conversations = await _conversationService.GetUserConversationsAsync(userId);
 
-        return Ok(conversations.Select(MapToConversationResponse));
+        var response = conversations.Select(MapToConversationResponse);
+        return Ok(ApiResponse<IEnumerable<ConversationResponse>>.SuccessResult(response));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ConversationResponse>> GetConversation(Guid id)
+    public async Task<ActionResult<ApiResponse<ConversationResponse>>> GetConversation(Guid id)
     {
         var userId = GetCurrentUserId();
         var conversation = await _conversationService.GetConversationAsync(id, userId);
 
         if (conversation == null)
         {
-            return NotFound();
+            return NotFound(ApiResponse<ConversationResponse>.ErrorResult("Conversation not found."));
         }
 
-        return Ok(MapToConversationResponse(conversation));
+        return Ok(ApiResponse<ConversationResponse>.SuccessResult(MapToConversationResponse(conversation)));
     }
 
     [HttpPost("{id}/messages")]
-    public async Task<ActionResult<MessageResponse>> SendMessage(Guid id, [FromBody] MessageRequest request)
+    public async Task<ActionResult<ApiResponse<MessageResponse>>> SendMessage(Guid id, [FromBody] SendMessageRequest request)
     {
         var userId = GetCurrentUserId();
         var conversation = await _conversationService.GetConversationAsync(id, userId);
 
         if (conversation == null)
         {
-            return NotFound();
+            return NotFound(ApiResponse<MessageResponse>.ErrorResult("Conversation not found."));
         }
 
         var receiverId = conversation.User1Id == userId ? conversation.User2Id : conversation.User1Id;
         var message = await _conversationService.SendMessageAsync(id, userId, receiverId, request.Content);
 
-        return Ok(MapToMessageResponse(message));
+        return Ok(ApiResponse<MessageResponse>.SuccessResult(MapToMessageResponse(message)));
     }
 
     [HttpGet("{id}/messages")]
-    public async Task<ActionResult<IEnumerable<MessageResponse>>> GetMessages(Guid id)
+    public async Task<ActionResult<ApiResponse<IEnumerable<MessageResponse>>>> GetMessages(Guid id)
     {
         var userId = GetCurrentUserId();
         var messages = await _conversationService.GetConversationMessagesAsync(id, userId);
 
-        return Ok(messages.Select(MapToMessageResponse));
+        var response = messages.Select(MapToMessageResponse);
+        return Ok(ApiResponse<IEnumerable<MessageResponse>>.SuccessResult(response));
     }
 
     [HttpPost("messages/{messageId}/read")]
-    public async Task<IActionResult> MarkMessageAsRead(Guid messageId)
+    public async Task<ActionResult<ApiResponse<bool>>> MarkMessageAsRead(Guid messageId)
     {
         var userId = GetCurrentUserId();
         await _conversationService.MarkMessageAsReadAsync(messageId, userId);
 
-        return NoContent();
+        return Ok(ApiResponse<bool>.SuccessResult(true, "Message marked as read."));
     }
 
-    private ConversationResponse MapToConversationResponse(MoveOn.Core.Entities.Conversation conversation)
+    private ConversationResponse MapToConversationResponse(MoveOn.Core.Models.Entities.Conversation conversation)
     {
         return new ConversationResponse
         {
@@ -100,7 +104,9 @@ public class ConversationsController : ControllerBase
                 Email = conversation.User1.Email,
                 FirstName = conversation.User1.FirstName,
                 LastName = conversation.User1.LastName,
-                ProfileImageUrl = conversation.User1.ProfileImageUrl
+                ProfileImageUrl = conversation.User1.ProfileImageUrl,
+                Role = conversation.User1.Role.ToString(),
+                CreatedAt = conversation.User1.CreatedAt
             },
             User2 = new UserResponse
             {
@@ -108,13 +114,15 @@ public class ConversationsController : ControllerBase
                 Email = conversation.User2.Email,
                 FirstName = conversation.User2.FirstName,
                 LastName = conversation.User2.LastName,
-                ProfileImageUrl = conversation.User2.ProfileImageUrl
+                ProfileImageUrl = conversation.User2.ProfileImageUrl,
+                Role = conversation.User2.Role.ToString(),
+                CreatedAt = conversation.User2.CreatedAt
             },
             Messages = conversation.Messages?.Select(MapToMessageResponse).ToList() ?? new List<MessageResponse>()
         };
     }
 
-    private MessageResponse MapToMessageResponse(MoveOn.Core.Entities.Message message)
+    private MessageResponse MapToMessageResponse(MoveOn.Core.Models.Entities.Message message)
     {
         return new MessageResponse
         {
@@ -131,7 +139,9 @@ public class ConversationsController : ControllerBase
                 Email = message.Sender.Email,
                 FirstName = message.Sender.FirstName,
                 LastName = message.Sender.LastName,
-                ProfileImageUrl = message.Sender.ProfileImageUrl
+                ProfileImageUrl = message.Sender.ProfileImageUrl,
+                Role = message.Sender.Role.ToString(),
+                CreatedAt = message.Sender.CreatedAt
             },
             Receiver = new UserResponse
             {
@@ -139,7 +149,9 @@ public class ConversationsController : ControllerBase
                 Email = message.Receiver.Email,
                 FirstName = message.Receiver.FirstName,
                 LastName = message.Receiver.LastName,
-                ProfileImageUrl = message.Receiver.ProfileImageUrl
+                ProfileImageUrl = message.Receiver.ProfileImageUrl,
+                Role = message.Receiver.Role.ToString(),
+                CreatedAt = message.Receiver.CreatedAt
             }
         };
     }

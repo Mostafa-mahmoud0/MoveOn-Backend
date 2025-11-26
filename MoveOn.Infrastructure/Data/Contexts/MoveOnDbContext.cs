@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using MoveOn.Core.Entities;
+using MoveOn.Core.Models.Entities;
+using MoveOn.Infrastructure.Data.Configurations;
 
-namespace MoveOn.Infrastructure.Data;
+namespace MoveOn.Infrastructure.Data.Contexts;
 
 public class MoveOnDbContext : DbContext
 {

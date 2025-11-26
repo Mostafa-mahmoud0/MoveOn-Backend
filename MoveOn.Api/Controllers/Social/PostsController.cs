@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoveOn.Api.DTOs;
-using MoveOn.Core.Interfaces;
+using MoveOn.Core.Models.Requests.Social;
+using MoveOn.Core.Models.Responses.Social;
+using MoveOn.Core.Interfaces.Services;
+using MoveOn.Core.Models.Common;
 using System.Security.Claims;
 
-namespace MoveOn.Api.Controllers;
+namespace MoveOn.Api.Controllers.Social;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class PostsController : ControllerBase
 {
     private readonly IPostService _postService;
@@ -21,16 +22,18 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<PostResponse>> CreatePost([FromBody] PostRequest request)
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<PostResponse>>> CreatePost([FromBody] CreatePostRequest request)
     {
         var userId = GetCurrentUserId();
         var post = await _postService.CreatePostAsync(userId, request.Content);
 
-        return Ok(MapToPostResponse(post));
+        return Ok(ApiResponse<PostResponse>.SuccessResult(MapToPostResponse(post, userId)));
     }
 
     [HttpPost("with-image")]
-    public async Task<ActionResult<PostResponse>> CreatePostWithImage([FromForm] PostWithImageRequest request)
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<PostResponse>>> CreatePostWithImage([FromForm] CreatePostWithImageRequest request)
     {
         var userId = GetCurrentUserId();
         string? imageUrl = null;
@@ -43,49 +46,59 @@ public class PostsController : ControllerBase
         }
 
         var post = await _postService.CreatePostAsync(userId, request.Content, imageUrl);
-        return Ok(MapToPostResponse(post));
+        return Ok(ApiResponse<PostResponse>.SuccessResult(MapToPostResponse(post, userId)));
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<IEnumerable<PostResponse>>> GetPosts([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<ActionResult<ApiResponse<PagedResponse<PostResponse>>>> GetPosts([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         var posts = await _postService.GetPostsAsync(page, pageSize);
         var userId = GetCurrentUserId();
 
         var postResponses = posts.Select(post => MapToPostResponse(post, userId)).ToList();
-        return Ok(postResponses);
+        
+        var response = new PagedResponse<PostResponse>
+        {
+            Data = postResponses,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = postResponses.Count
+        };
+
+        return Ok(ApiResponse<PagedResponse<PostResponse>>.SuccessResult(response));
     }
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<ActionResult<PostResponse>> GetPost(Guid id)
+    public async Task<ActionResult<ApiResponse<PostResponse>>> GetPost(Guid id)
     {
         var post = await _postService.GetPostAsync(id);
         if (post == null)
         {
-            return NotFound();
+            return NotFound(ApiResponse<PostResponse>.ErrorResult("Post not found."));
         }
 
         var userId = GetCurrentUserId();
-        return Ok(MapToPostResponse(post, userId));
+        return Ok(ApiResponse<PostResponse>.SuccessResult(MapToPostResponse(post, userId)));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePost(Guid id)
+    [Authorize]
+    public async Task<ActionResult<ApiResponse<bool>>> DeletePost(Guid id)
     {
         var userId = GetCurrentUserId();
         var success = await _postService.DeletePostAsync(id, userId);
 
         if (!success)
         {
-            return NotFound();
+            return NotFound(ApiResponse<bool>.ErrorResult("Post not found."));
         }
 
-        return NoContent();
+        return Ok(ApiResponse<bool>.SuccessResult(true, "Post deleted successfully."));
     }
 
-    private PostResponse MapToPostResponse(MoveOn.Core.Entities.Post post, Guid? currentUserId = null)
+    private PostResponse MapToPostResponse(MoveOn.Core.Models.Entities.Post post, Guid? currentUserId = null)
     {
         return new PostResponse
         {
@@ -101,7 +114,9 @@ public class PostsController : ControllerBase
                 Email = post.User.Email,
                 FirstName = post.User.FirstName,
                 LastName = post.User.LastName,
-                ProfileImageUrl = post.User.ProfileImageUrl
+                ProfileImageUrl = post.User.ProfileImageUrl,
+                Role = post.User.Role.ToString(),
+                CreatedAt = post.User.CreatedAt
             },
             Comments = post.Comments?.Select(c => new CommentResponse
             {
@@ -117,7 +132,9 @@ public class PostsController : ControllerBase
                     Email = c.User.Email,
                     FirstName = c.User.FirstName,
                     LastName = c.User.LastName,
-                    ProfileImageUrl = c.User.ProfileImageUrl
+                    ProfileImageUrl = c.User.ProfileImageUrl,
+                    Role = c.User.Role.ToString(),
+                    CreatedAt = c.User.CreatedAt
                 }
             }).ToList() ?? new List<CommentResponse>(),
             LikeCount = post.Likes?.Count ?? 0,
