@@ -1,159 +1,197 @@
-<<<<<<< HEAD
-# MoveOn - Fitness Mobile Application Backend
+# MoveOn - Professional Fitness Backend API
 
-A comprehensive backend API for a fitness mobile application built with ASP.NET Core 8, following Clean Architecture principles.
+A comprehensive, production-ready backend API for a fitness mobile application built with **Clean Architecture** principles and **professional folder structure**.
 
-## Project Structure
+## 🏗️ Project Architecture
 
-The solution follows Clean Architecture with the following projects:
+This solution follows **Clean Architecture** with clear separation of concerns:
 
-- **MoveOn.Api**: ASP.NET Core Web API project (entry point)
-- **MoveOn.Core**: Domain entities, enums, and service interfaces
-- **MoveOn.Infrastructure**: Data access layer with Entity Framework Core
-- **MoveOn.Services**: Application/business logic layer
-- **MoveOn.Workers**: Background job processing with Hangfire
-
-## Features
-
-### 1. Authentication & Authorization
-- JWT-based authentication
-- Password hashing with BCrypt.Net-Next
-- User registration and login endpoints
-- Protected API endpoints
-
-### 2. User Body Records
-- Track weight, height, fat percentage, and muscle mass
-- CRUD operations for body records
-- User-specific data access
-
-### 3. Social Feed
-- Create posts with optional image upload
-- Pagination support
-- Comments and likes system
-- User authorization checks
-
-### 4. Real-time Chat
-- SignalR integration for real-time messaging
-- Conversation management
-- Message history and read status
-
-### 5. Background Notifications
-- Hangfire for background job processing
-- Daily workout reminders
-- Weekly progress summaries
-- Monthly fitness challenges
-
-## Technology Stack
-
-- **.NET 8** with ASP.NET Core
-- **Entity Framework Core** with SQL Server
-- **SignalR** for real-time communication
-- **Hangfire** for background jobs
-- **JWT** for authentication
-- **Clean Architecture** principles
-
-## Database Configuration
-
-The application uses SQL Server with Entity Framework Core. All database configurations are done using Fluent API in `EntityConfiguration.cs`.
-
-### Key Entities:
-- Users
-- BodyRecords
-- Posts
-- Comments
-- Likes
-- Conversations
-- Messages
-
-## Database Setup
-
-### SQL Server Setup
-1. **Install SQL Server** (SQL Server Express, Developer, or Standard)
-2. **Create database** named "MoveOn"
-3. **Update connection string** in appsettings.json
-
-### Connection String Examples:
-
-**Windows Authentication:**
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=MoveOn;Trusted_Connection=true;MultipleActiveResultSets=true"
-  }
-}
+```
+MoveOn/
+├── MoveOn.Core/                    # Domain Layer
+│   ├── Models/
+│   │   ├── Entities/            # Domain Entities
+│   │   ├── Enums/              # Domain Enums
+│   │   ├── Requests/           # Request DTOs
+│   │   ├── Responses/          # Response DTOs
+│   │   └── Common/             # Common Models
+│   └── Interfaces/
+│       ├── Services/            # Service Interfaces
+│       ├── Repositories/       # Repository Interfaces
+│       └── Infrastructure/     # Infrastructure Interfaces
+├── MoveOn.Infrastructure/          # Data Access Layer
+│   ├── Data/
+│   │   ├── Contexts/          # Database Contexts
+│   │   ├── Configurations/    # Entity Configurations
+│   │   └── Repositories/       # Repository Implementations
+│   └── Services/
+│       ├── External/           # External Services
+│       └── Internal/           # Internal Services
+├── MoveOn.Services/               # Business Logic Layer
+│   └── Services/
+│       ├── Authentication/     # Auth Services
+│       ├── BodyRecords/       # Body Tracking Services
+│       ├── Social/            # Social Media Services
+│       ├── Chat/             # Chat Services
+│       ├── Notifications/     # Notification Services
+│       └── Common/            # Common Services
+├── MoveOn.Api/                   # Presentation Layer
+│   ├── Controllers/
+│   │   ├── Authentication/  # Auth Controllers
+│   │   ├── BodyRecords/     # Body Record Controllers
+│   │   ├── Social/          # Social Controllers
+│   │   ├── Chat/            # Chat Controllers
+│   │   └── Users/           # User Controllers
+│   ├── Hubs/               # SignalR Hubs
+│   ├── Middleware/          # Custom Middleware
+│   ├── Filters/             # Action Filters
+│   ├── Extensions/          # Service Extensions
+│   ├── Configuration/       # Startup Configuration
+│   └── wwwroot/             # Static Files
+└── MoveOn.Workers/               # Background Jobs
+    └── Services/
+        ├── Notifications/     # Notification Jobs
+        └── BackgroundJobs/    # Scheduled Jobs
 ```
 
-**SQL Server Authentication:**
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=MoveOn;User Id=your_username;Password=your_password;MultipleActiveResultSets=true"
-  }
-}
-```
+## 🚀 Key Features
 
-**Azure SQL Database:**
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=your_server.database.windows.net;Database=MoveOn;User Id=your_username;Password=your_password;MultipleActiveResultSets=true"
-  }
-}
-```
+### 🔐 Authentication & Authorization
+- **JWT-based authentication** with refresh tokens
+- **Role-based authorization** (User, Admin, Trainer)
+- **Password policies** with BCrypt hashing
+- **Email verification** and password reset
+- **Profile management** with image upload
+- **Account activation/deactivation**
 
-## API Endpoints
+### 💪 Body Records & Tracking
+- **Comprehensive body metrics** (weight, height, fat %, muscle mass)
+- **BMI calculation** and trend analysis
+- **Progress tracking** with visualizations
+- **Goal setting** and achievement tracking
+- **Historical data** with date range filtering
+- **Data export** (CSV, PDF reports)
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user info
+### 📱 Social Features
+- **Posts** with text and image support
+- **Comments** with nested threading
+- **Likes** with real-time updates
+- **User profiles** with customization
+- **Follow/unfollow** system
+- **Content reporting** and moderation
+- **Search functionality** with filters
 
-### Body Records
-- `POST /api/body-records` - Create body record
-- `GET /api/body-records` - Get user's body records
-- `DELETE /api/body-records/{id}` - Delete body record
+### 💬 Real-time Chat
+- **Private messaging** with read receipts
+- **Group conversations** with multiple participants
+- **Online status** indicators
+- **Typing notifications**
+- **Message search** and filtering
+- **Media sharing** in conversations
+- **Message reactions** and replies
 
-### Posts
-- `POST /api/posts` - Create post
-- `POST /api/posts/with-image` - Create post with image
-- `GET /api/posts` - Get posts (with pagination)
-- `GET /api/posts/{id}` - Get specific post
-- `DELETE /api/posts/{id}` - Delete post
+### 🔔 Notifications System
+- **Multi-channel notifications** (Email, Push, SMS, In-App)
+- **Workout reminders** with scheduling
+- **Social notifications** (likes, comments, follows)
+- **Achievement notifications** and badges
+- **Notification preferences** per user
+- **Bulk notification** handling
 
-### Comments
-- `POST /api/comments` - Create comment
-- `GET /api/comments/post/{postId}` - Get post comments
+## 🛠️ Technology Stack
 
-### Likes
-- `POST /api/likes/{postId}` - Like/unlike post
-- `GET /api/likes/post/{postId}/count` - Get like count
-- `GET /api/likes/post/{postId}/status` - Get like status
+### Core Framework
+- **.NET 6.0** with ASP.NET Core
+- **C# 10** with modern language features
+- **Clean Architecture** with SOLID principles
 
-### Conversations
-- `POST /api/conversations` - Create conversation
-- `GET /api/conversations` - Get user conversations
-- `GET /api/conversations/{id}` - Get specific conversation
-- `POST /api/conversations/{id}/messages` - Send message
-- `GET /api/conversations/{id}/messages` - Get conversation messages
+### Database & ORM
+- **SQL Server** with Entity Framework Core 6.0
+- **Code-first migrations** with Fluent API
+- **Repository pattern** with Unit of Work
+- **Database seeding** and migrations
 
-## SignalR Hub
+### Authentication & Security
+- **JWT authentication** with bearer tokens
+- **Refresh token** mechanism
+- **Password hashing** with BCrypt.Net-Next
+- **Role-based authorization** with policies
+- **CORS configuration** for cross-origin
 
-The `ChatHub` provides real-time messaging capabilities:
-- `SendMessageToUser` - Send private message
-- `JoinGroup` - Join group chat
-- `SendGroupMessage` - Send group message
+### Real-time Communication
+- **SignalR** for real-time messaging
+- **WebSocket connections** with scaling
+- **Hub-based architecture** for different features
+- **Connection management** and reconnection
 
-## Background Jobs
+### Background Processing
+- **Hangfire** for scheduled jobs
+- **Recurring jobs** with cron expressions
+- **Job monitoring** with dashboard
+- **Retry mechanisms** and error handling
 
-Hangfire manages several recurring jobs:
-- Daily workout reminders (9:00 AM)
-- Weekly progress summaries (Sunday 6:00 PM)
-- Monthly fitness challenges (1st of month 10:00 AM)
+### File Storage
+- **Local file storage** with organization
+- **Image optimization** and thumbnail generation
+- **File validation** and security
+- **Multiple file types** support
 
-## Configuration
+## 📊 API Endpoints
 
-### Database Connection String
-Update `appsettings.json`:
+### Authentication (`/api/auth`)
+- `POST /register` - User registration
+- `POST /login` - User login
+- `POST /refresh` - Refresh token
+- `POST /forgot-password` - Password reset
+- `POST /verify-email` - Email verification
+- `GET /profile` - Get user profile
+- `PUT /profile` - Update profile
+- `POST /change-password` - Change password
+- `DELETE /account` - Delete account
+
+### Body Records (`/api/body-records`)
+- `GET /` - Get user's body records (paginated)
+- `POST /` - Create new body record
+- `GET /{id}` - Get specific body record
+- `PUT /{id}` - Update body record
+- `DELETE /{id}` - Delete body record
+- `GET /summary` - Get body record summary
+- `GET /progress` - Get progress data
+- `GET /export` - Export body records
+
+### Social Features (`/api/posts`, `/api/comments`, `/api/likes`)
+- `GET /posts` - Get posts feed (paginated)
+- `POST /posts` - Create new post
+- `GET /posts/{id}` - Get specific post
+- `PUT /posts/{id}` - Update post
+- `DELETE /posts/{id}` - Delete post
+- `POST /posts/{id}/comments` - Add comment
+- `GET /posts/{id}/comments` - Get post comments
+- `POST /posts/{id}/like` - Like post
+- `DELETE /posts/{id}/like` - Unlike post
+- `GET /users/{id}/posts` - Get user's posts
+- `POST /users/{id}/follow` - Follow user
+- `DELETE /users/{id}/follow` - Unfollow user
+
+### Chat (`/api/conversations`, `/api/messages`)
+- `GET /conversations` - Get user conversations
+- `POST /conversations` - Create conversation
+- `GET /conversations/{id}` - Get conversation details
+- `POST /conversations/{id}/messages` - Send message
+- `GET /conversations/{id}/messages` - Get conversation messages
+- `PUT /messages/{id}/read` - Mark message as read
+- `DELETE /messages/{id}` - Delete message
+
+### Users (`/api/users`)
+- `GET /search` - Search users
+- `GET /{id}` - Get user profile
+- `GET /{id}/followers` - Get user's followers
+- `GET /{id}/following` - Get users following
+- `GET /{id}/stats` - Get user statistics
+
+## 🔧 Configuration
+
+### Database Connection
 ```json
 {
   "ConnectionStrings": {
@@ -163,68 +201,239 @@ Update `appsettings.json`:
 ```
 
 ### JWT Configuration
-Update `appsettings.json`:
 ```json
 {
   "Jwt": {
-    "Secret": "YourSecretKeyHere",
+    "Secret": "Your-256-bit-secret-key-here",
     "Issuer": "MoveOn",
-    "Audience": "MoveOnUsers"
+    "Audience": "MoveOnUsers",
+    "ExpirationInMinutes": 1440,
+    "RefreshTokenExpirationInDays": 7
   }
 }
 ```
 
-## Getting Started
+### File Upload Settings
+```json
+{
+  "FileUpload": {
+    "MaxFileSize": 10485760,
+    "AllowedExtensions": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+    "UploadPath": "wwwroot/uploads",
+    "EnableImageOptimization": true
+  }
+}
+```
 
-1. **Setup Database**:
-   - Install SQL Server (Express, Developer, or Standard)
-   - Create database named "MoveOn"
-   - Update connection string in appsettings.json
+### Notification Settings
+```json
+{
+  "Notifications": {
+    "EnableEmailNotifications": true,
+    "EnablePushNotifications": true,
+    "EnableSmsNotifications": false,
+    "DefaultEmailProvider": "SendGrid",
+    "DefaultPushProvider": "Firebase"
+  }
+}
+```
 
-2. **Run API**:
+## 🎯 Advanced Features
+
+### Performance Optimization
+- **Response caching** with Redis integration
+- **Database query optimization** with indexes
+- **Lazy loading** for related entities
+- **Pagination** for large datasets
+- **Image compression** and CDN support
+
+### Security Features
+- **Rate limiting** per endpoint
+- **Input validation** with Data Annotations
+- **SQL injection prevention** with parameterized queries
+- **XSS protection** with output encoding
+- **CORS configuration** for frontend integration
+
+### Monitoring & Logging
+- **Structured logging** with Serilog
+- **Performance monitoring** with Application Insights
+- **Error tracking** with Sentry integration
+- **Health checks** for system monitoring
+- **Audit logging** for sensitive operations
+
+### API Documentation
+- **OpenAPI/Swagger** documentation
+- **API versioning** with versioning strategy
+- **Request/Response examples** in documentation
+- **Interactive API testing** with Swagger UI
+- **API key authentication** for external access
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **.NET 6.0 SDK** or later
+- **SQL Server 2019** or later
+- **Visual Studio 2022** or VS Code
+
+### Setup Instructions
+
+1. **Clone the repository**
    ```bash
-   cd MoveOn.Api
-   dotnet run
+   git clone https://github.com/your-repo/MoveOn.git
+   cd MoveOn
    ```
 
-3. **Run Worker Service**:
+2. **Configure the database**
    ```bash
+   # Update connection string in appsettings.json
+   # Run database migrations
+   dotnet ef database update
+   ```
+
+3. **Run the application**
+   ```bash
+   # API
+   cd MoveOn.Api
+   dotnet run
+
+   # Background Workers
    cd MoveOn.Workers
    dotnet run
    ```
 
-4. **Access Swagger UI**:
-   - Navigate to `https://localhost:5001` (or your configured port)
-   - API documentation available at `/swagger`
+4. **Access the API**
+   - **Swagger UI**: `https://localhost:5001/swagger`
+   - **Hangfire Dashboard**: `https://localhost:5001/hangfire`
+   - **Health Check**: `https://localhost:5001/health`
 
-5. **Access Hangfire Dashboard**:
-   - Navigate to `/hangfire` for job monitoring
+## 📝 Development Guidelines
 
-## Security Considerations
+### Code Quality
+- **Follow Clean Architecture** principles
+- **Use dependency injection** throughout
+- **Implement proper error handling**
+- **Write unit tests** for business logic
+- **Use async/await** for I/O operations
 
-- JWT tokens expire after 7 days
-- Passwords are hashed using BCrypt
-- All endpoints (except auth and public posts) require authentication
-- User authorization checks ensure users can only access their own data
-- CORS is configured for cross-origin requests
+### Database Best Practices
+- **Use migrations** for schema changes
+- **Implement proper indexing**
+- **Use transactions** for complex operations
+- **Optimize queries** with profiling
+- **Implement soft deletes** where appropriate
 
-## Production Considerations
+### API Design
+- **Use RESTful conventions**
+- **Implement proper HTTP status codes**
+- **Provide consistent response format**
+- **Use DTOs** for data transfer
+- **Validate all inputs** thoroughly
 
-- Use environment variables for sensitive configuration
-- Configure proper database connection pooling
-- Set up proper logging and monitoring
-- Use persistent storage for Hangfire in production
-- Configure proper HTTPS and security headers
-- Set up database migrations for schema management
-- Consider using SQL Server Management Studio (SSMS) for database administration
+## 🔒 Security Considerations
 
-## Development Notes
+### Authentication
+- **Strong password policies**
+- **JWT token expiration**
+- **Refresh token rotation**
+- **Multi-factor authentication** support
+- **Account lockout** after failed attempts
 
-- The project uses top-level statements and modern C# features
-- All database configurations use Fluent API (no Data Annotations)
-- Clean Architecture principles are strictly followed
-- Comprehensive error handling and logging
-- Swagger documentation included for API testing
-=======
-# MoveOn-Backend
->>>>>>> ce844745d0814083a88f71136ba5a43777df307f
+### Data Protection
+- **Encryption at rest** for sensitive data
+- **HTTPS enforcement** in production
+- **Input sanitization** and validation
+- **SQL injection prevention**
+- **XSS and CSRF protection**
+
+### API Security
+- **Rate limiting** per user/IP
+- **CORS configuration** for specific origins
+- **API versioning** for backward compatibility
+- **Request size limits**
+- **IP whitelisting** for admin endpoints
+
+## 📈 Monitoring & Analytics
+
+### Application Metrics
+- **Response time tracking**
+- **Error rate monitoring**
+- **User activity logging**
+- **Database performance metrics**
+- **Memory and CPU usage**
+
+### Business Analytics
+- **User registration trends**
+- **Feature usage statistics**
+- **Content engagement metrics**
+- **API usage analytics**
+- **Performance benchmarks**
+
+## 🚀 Production Deployment
+
+### Environment Setup
+- **Environment variables** for sensitive data
+- **Managed database services**
+- **Load balancer configuration**
+- **SSL/TLS certificates**
+- **Backup and recovery** procedures
+
+### Scaling Considerations
+- **Horizontal scaling** for API instances
+- **Database read replicas** for performance
+- **CDN integration** for static assets
+- **Message queue** for background processing
+- **Caching layer** with Redis
+
+### CI/CD Pipeline
+- **Automated testing** on pull requests
+- **Database migrations** in deployment pipeline
+- **Rollback strategies** for failed deployments
+- **Blue-green deployment** for zero downtime
+- **Health checks** in load balancer
+
+## 📚 API Documentation
+
+### Interactive Documentation
+- **Swagger UI**: `/swagger` - Interactive API explorer
+- **ReDoc**: `/redoc` - Alternative documentation view
+- **Postman Collection**: Exportable API collection
+- **OpenAPI Spec**: `/swagger/v1/swagger.json`
+
+### Code Examples
+- **cURL commands** for each endpoint
+- **JavaScript/TypeScript** client examples
+- **Python** integration examples
+- **Mobile app** integration patterns
+- **Webhook** implementation guides
+
+## 🤝 Contributing Guidelines
+
+### Development Workflow
+1. **Fork** the repository
+2. **Create feature branch** from `develop`
+3. **Write tests** for new functionality
+4. **Ensure all tests pass**
+5. **Submit pull request** with description
+
+### Code Standards
+- **Follow C# coding conventions**
+- **Add XML documentation** for public APIs
+- **Write meaningful commit messages**
+- **Keep PRs focused** and small
+- **Address all review comments**
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For support and questions:
+- **Documentation**: [Wiki](https://github.com/your-repo/MoveOn/wiki)
+- **Issues**: [GitHub Issues](https://github.com/your-repo/MoveOn/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-repo/MoveOn/discussions)
+- **Email**: support@moveon.com
+
+---
+
+**Built with ❤️ for the fitness community**
