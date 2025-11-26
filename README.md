@@ -1,141 +1,189 @@
-# 🚀 Welcome to Z.ai Code Scaffold
+# MoveOn - Fitness Mobile Application Backend
 
-A modern, production-ready web application scaffold powered by cutting-edge technologies, designed to accelerate your development with [Z.ai](https://chat.z.ai)'s AI-powered coding assistance.
+A comprehensive backend API for a fitness mobile application built with ASP.NET Core 8, following Clean Architecture principles.
 
-## ✨ Technology Stack
+## Project Structure
 
-This scaffold provides a robust foundation built with:
+The solution follows Clean Architecture with the following projects:
 
-### 🎯 Core Framework
-- **⚡ Next.js 15** - The React framework for production with App Router
-- **📘 TypeScript 5** - Type-safe JavaScript for better developer experience
-- **🎨 Tailwind CSS 4** - Utility-first CSS framework for rapid UI development
+- **MoveOn.Api**: ASP.NET Core Web API project (entry point)
+- **MoveOn.Core**: Domain entities, enums, and service interfaces
+- **MoveOn.Infrastructure**: Data access layer with Entity Framework Core
+- **MoveOn.Services**: Application/business logic layer
+- **MoveOn.Workers**: Background job processing with Hangfire
 
-### 🧩 UI Components & Styling
-- **🧩 shadcn/ui** - High-quality, accessible components built on Radix UI
-- **🎯 Lucide React** - Beautiful & consistent icon library
-- **🌈 Framer Motion** - Production-ready motion library for React
-- **🎨 Next Themes** - Perfect dark mode in 2 lines of code
+## Features
 
-### 📋 Forms & Validation
-- **🎣 React Hook Form** - Performant forms with easy validation
-- **✅ Zod** - TypeScript-first schema validation
+### 1. Authentication & Authorization
+- JWT-based authentication
+- Password hashing with BCrypt.Net-Next
+- User registration and login endpoints
+- Protected API endpoints
 
-### 🔄 State Management & Data Fetching
-- **🐻 Zustand** - Simple, scalable state management
-- **🔄 TanStack Query** - Powerful data synchronization for React
-- **🌐 Axios** - Promise-based HTTP client
+### 2. User Body Records
+- Track weight, height, fat percentage, and muscle mass
+- CRUD operations for body records
+- User-specific data access
 
-### 🗄️ Database & Backend
-- **🗄️ Prisma** - Next-generation Node.js and TypeScript ORM
-- **🔐 NextAuth.js** - Complete open-source authentication solution
+### 3. Social Feed
+- Create posts with optional image upload
+- Pagination support
+- Comments and likes system
+- User authorization checks
 
-### 🎨 Advanced UI Features
-- **📊 TanStack Table** - Headless UI for building tables and datagrids
-- **🖱️ DND Kit** - Modern drag and drop toolkit for React
-- **📊 Recharts** - Redefined chart library built with React and D3
-- **🖼️ Sharp** - High performance image processing
+### 4. Real-time Chat
+- SignalR integration for real-time messaging
+- Conversation management
+- Message history and read status
 
-### 🌍 Internationalization & Utilities
-- **🌍 Next Intl** - Internationalization library for Next.js
-- **📅 Date-fns** - Modern JavaScript date utility library
-- **🪝 ReactUse** - Collection of essential React hooks for modern development
+### 5. Background Notifications
+- Hangfire for background job processing
+- Daily workout reminders
+- Weekly progress summaries
+- Monthly fitness challenges
 
-## 🎯 Why This Scaffold?
+## Technology Stack
 
-- **🏎️ Fast Development** - Pre-configured tooling and best practices
-- **🎨 Beautiful UI** - Complete shadcn/ui component library with advanced interactions
-- **🔒 Type Safety** - Full TypeScript configuration with Zod validation
-- **📱 Responsive** - Mobile-first design principles with smooth animations
-- **🗄️ Database Ready** - Prisma ORM configured for rapid backend development
-- **🔐 Auth Included** - NextAuth.js for secure authentication flows
-- **📊 Data Visualization** - Charts, tables, and drag-and-drop functionality
-- **🌍 i18n Ready** - Multi-language support with Next Intl
-- **🚀 Production Ready** - Optimized build and deployment settings
-- **🤖 AI-Friendly** - Structured codebase perfect for AI assistance
+- **.NET 8** with ASP.NET Core
+- **Entity Framework Core** with PostgreSQL
+- **SignalR** for real-time communication
+- **Hangfire** for background jobs
+- **JWT** for authentication
+- **Clean Architecture** principles
 
-## 🚀 Quick Start
+## Database Configuration
 
-```bash
-# Install dependencies
-npm install
+The application uses PostgreSQL with Entity Framework Core. All database configurations are done using Fluent API in `EntityConfiguration.cs`.
 
-# Start development server
-npm run dev
+### Key Entities:
+- Users
+- BodyRecords
+- Posts
+- Comments
+- Likes
+- Conversations
+- Messages
 
-# Build for production
-npm run build
+## API Endpoints
 
-# Start production server
-npm start
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user info
+
+### Body Records
+- `POST /api/body-records` - Create body record
+- `GET /api/body-records` - Get user's body records
+- `DELETE /api/body-records/{id}` - Delete body record
+
+### Posts
+- `POST /api/posts` - Create post
+- `POST /api/posts/with-image` - Create post with image
+- `GET /api/posts` - Get posts (with pagination)
+- `GET /api/posts/{id}` - Get specific post
+- `DELETE /api/posts/{id}` - Delete post
+
+### Comments
+- `POST /api/comments` - Create comment
+- `GET /api/comments/post/{postId}` - Get post comments
+
+### Likes
+- `POST /api/likes/{postId}` - Like/unlike post
+- `GET /api/likes/post/{postId}/count` - Get like count
+- `GET /api/likes/post/{postId}/status` - Get like status
+
+### Conversations
+- `POST /api/conversations` - Create conversation
+- `GET /api/conversations` - Get user conversations
+- `GET /api/conversations/{id}` - Get specific conversation
+- `POST /api/conversations/{id}/messages` - Send message
+- `GET /api/conversations/{id}/messages` - Get conversation messages
+
+## SignalR Hub
+
+The `ChatHub` provides real-time messaging capabilities:
+- `SendMessageToUser` - Send private message
+- `JoinGroup` - Join group chat
+- `SendGroupMessage` - Send group message
+
+## Background Jobs
+
+Hangfire manages several recurring jobs:
+- Daily workout reminders (9:00 AM)
+- Weekly progress summaries (Sunday 6:00 PM)
+- Monthly fitness challenges (1st of month 10:00 AM)
+
+## Configuration
+
+### Database Connection String
+Update `appsettings.json`:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=MoveOn;Username=postgres;Password=password"
+  }
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your application running.
-
-## 🤖 Powered by Z.ai
-
-This scaffold is optimized for use with [Z.ai](https://chat.z.ai) - your AI assistant for:
-
-- **💻 Code Generation** - Generate components, pages, and features instantly
-- **🎨 UI Development** - Create beautiful interfaces with AI assistance  
-- **🔧 Bug Fixing** - Identify and resolve issues with intelligent suggestions
-- **📝 Documentation** - Auto-generate comprehensive documentation
-- **🚀 Optimization** - Performance improvements and best practices
-
-Ready to build something amazing? Start chatting with Z.ai at [chat.z.ai](https://chat.z.ai) and experience the future of AI-powered development!
-
-## 📁 Project Structure
-
-```
-src/
-├── app/                 # Next.js App Router pages
-├── components/          # Reusable React components
-│   └── ui/             # shadcn/ui components
-├── hooks/              # Custom React hooks
-└── lib/                # Utility functions and configurations
+### JWT Configuration
+Update `appsettings.json`:
+```json
+{
+  "Jwt": {
+    "Secret": "YourSecretKeyHere",
+    "Issuer": "MoveOn",
+    "Audience": "MoveOnUsers"
+  }
+}
 ```
 
-## 🎨 Available Features & Components
+## Getting Started
 
-This scaffold includes a comprehensive set of modern web development tools:
+1. **Setup Database**:
+   - Install PostgreSQL
+   - Create database named "MoveOn"
+   - Update connection string in appsettings.json
 
-### 🧩 UI Components (shadcn/ui)
-- **Layout**: Card, Separator, Aspect Ratio, Resizable Panels
-- **Forms**: Input, Textarea, Select, Checkbox, Radio Group, Switch
-- **Feedback**: Alert, Toast (Sonner), Progress, Skeleton
-- **Navigation**: Breadcrumb, Menubar, Navigation Menu, Pagination
-- **Overlay**: Dialog, Sheet, Popover, Tooltip, Hover Card
-- **Data Display**: Badge, Avatar, Calendar
+2. **Run API**:
+   ```bash
+   cd MoveOn.Api
+   dotnet run
+   ```
 
-### 📊 Advanced Data Features
-- **Tables**: Powerful data tables with sorting, filtering, pagination (TanStack Table)
-- **Charts**: Beautiful visualizations with Recharts
-- **Forms**: Type-safe forms with React Hook Form + Zod validation
+3. **Run Worker Service**:
+   ```bash
+   cd MoveOn.Workers
+   dotnet run
+   ```
 
-### 🎨 Interactive Features
-- **Animations**: Smooth micro-interactions with Framer Motion
-- **Drag & Drop**: Modern drag-and-drop functionality with DND Kit
-- **Theme Switching**: Built-in dark/light mode support
+4. **Access Swagger UI**:
+   - Navigate to `https://localhost:5001` (or your configured port)
+   - API documentation available at `/swagger`
 
-### 🔐 Backend Integration
-- **Authentication**: Ready-to-use auth flows with NextAuth.js
-- **Database**: Type-safe database operations with Prisma
-- **API Client**: HTTP requests with Axios + TanStack Query
-- **State Management**: Simple and scalable with Zustand
+5. **Access Hangfire Dashboard**:
+   - Navigate to `/hangfire` for job monitoring
 
-### 🌍 Production Features
-- **Internationalization**: Multi-language support with Next Intl
-- **Image Optimization**: Automatic image processing with Sharp
-- **Type Safety**: End-to-end TypeScript with Zod validation
-- **Essential Hooks**: 100+ useful React hooks with ReactUse for common patterns
+## Security Considerations
 
-## 🤝 Get Started with Z.ai
+- JWT tokens expire after 7 days
+- Passwords are hashed using BCrypt
+- All endpoints (except auth and public posts) require authentication
+- User authorization checks ensure users can only access their own data
+- CORS is configured for cross-origin requests
 
-1. **Clone this scaffold** to jumpstart your project
-2. **Visit [chat.z.ai](https://chat.z.ai)** to access your AI coding assistant
-3. **Start building** with intelligent code generation and assistance
-4. **Deploy with confidence** using the production-ready setup
+## Production Considerations
 
----
+- Use environment variables for sensitive configuration
+- Configure proper database connection pooling
+- Set up proper logging and monitoring
+- Use persistent storage for Hangfire in production
+- Configure proper HTTPS and security headers
+- Set up database migrations for schema management
 
-Built with ❤️ for the developer community. Supercharged by [Z.ai](https://chat.z.ai) 🚀
+## Development Notes
+
+- The project uses top-level statements and modern C# features
+- All database configurations use Fluent API (no Data Annotations)
+- Clean Architecture principles are strictly followed
+- Comprehensive error handling and logging
+- Swagger documentation included for API testing
